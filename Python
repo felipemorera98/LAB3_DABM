@@ -1,0 +1,67 @@
+import serial
+import csv
+import os
+import os.path as path
+import struct
+
+cwd = os.getcwd()
+
+
+def c_archivo(vectorD, tipo):
+
+    with open(name, tipo, newline="") as file:
+        csv_writer = csv.writer(file, delimiter=",")
+        csv_writer.writerow(vectorD)
+
+
+def F_map(x, in_min, in_max, out_min, out_max):
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+
+
+LimS = 0
+LimI = 0
+minIN = 0
+maxIN = 255
+
+arduino = serial.Serial("COM4", 9600)
+sensor = arduino.readline()
+
+print("El dato del sensor es: ", sensor.decode())
+print("Los valores del limite Superior es :", LimS)
+print("Los valores del limite Inferior es :", LimI)
+LimS = int(input("Ingrese el valor del Limite Superior:"))
+LimI = int(input("Ingrese el valor del Limite Inferior:"))
+
+
+while True:
+    sensor = arduino.readline()
+    dato = int(sensor.decode())
+    vector=[]
+
+    if (dato > LimI) and (dato < LimS):
+
+        dato_m=255-int(F_map(dato, LimI, LimS, minIN, maxIN))
+        arduino.write(struct.pack(">B", dato_m))
+        print(dato_m)
+        vector.append(dato_m)
+        name = cwd + "/Datos/datos.csv"
+        if path.exists(name):
+            tipe_D = "a+"
+            c_archivo(vector, tipe_D)
+        else:
+            tipe_D = "w"
+            c_archivo(vector, tipe_D)
+
+    else:
+        print("EL valor del sensor es mayor a lo normal")
+        print(dato_m)
+        print("Por Favor registre nuevos Limites")
+        LimS = int(input("Ingrese el valor del Limite Superior:"))
+        LimI = int(input("Ingrese el valor del Limite Inferior:"))
+
+arduino.close()
+
+
+
+
+
