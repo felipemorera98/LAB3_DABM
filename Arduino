@@ -1,0 +1,19 @@
+
+int luz,val;
+int LED=2;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(LED,OUTPUT);
+}
+
+
+void loop() {  
+  luz = analogRead(A5);
+  Serial.println(luz); 
+  if(Serial.available()){
+    val=Serial.read();   
+    analogWrite(LED,val);   
+  }  
+  delay(100);
+}
